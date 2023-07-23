@@ -1,0 +1,19 @@
+{
+    "name": "iqbalatma/laravel-jwt-auth",
+    "description": "Laravel JWT Blacklist and Refresh Custom Mechanism",
+    "require": {
+        "php-open-source-saver/jwt-auth": "^2.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Iqbalatma\\LaravelJwtAuth\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "iqbalatma",
+            "email": "iqbalatma@gmail.com"
+        }
+    ]
+}
