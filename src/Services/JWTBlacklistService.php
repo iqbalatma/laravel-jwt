@@ -27,7 +27,7 @@ class JWTBlacklistService
          * Need to add additional time (5 minutes), just to make sure that expire token is below expire cache saved
          */
         $accessTTL = (config("jwt.ttl") * 60) + (60*60*5);
-        $refreshTTL = (config("jwt.refresh_ttl") * 60) + (60*60*5);;
+        $refreshTTL = (config("jwt.refresh_ttl") * 60) + (60*60*5);
         if (!$isInvalidateBothTokenType) {
             $tokenType = $payload->get("token_type");
             $ttl = $tokenType === "refresh" ? $refreshTTL : $accessTTL;
@@ -67,7 +67,11 @@ class JWTBlacklistService
         $dataCache = Cache::get("$cachePrefix.$tokenType.$userId");
 
         /**
-         * define variable
+         * use to check is token on blacklist
+         * if datacache exists
+         * and
+         * blacklisted iat is greater or equal to requested token iat
+         * it's mean tokens are on blacklisted
          */
         return $dataCache && $dataCache >= $iat;
     }
