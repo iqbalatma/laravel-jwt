@@ -1,0 +1,8 @@
+- create redis infrastructure broken check condition
+    we need to set last incident (broken cache server) date time or by default is the first time application accepting request
+    first of all, we need to check is last incident date time exists
+    if not, it is mean incident happen because redis is in memory db, so when server is restarted, the memory will be erased
+    if not, set last incident time to now()
+    then every request must be check, is iat is below incident time
+    if yes, we dont know this token is on blacklist or not, so invalidate that token set to blacklist, and ask user to input their credentials again
+    if not (which mean greater than last incident time) it is mean the token is issued after incident time and must be recorded on redis or cache system
