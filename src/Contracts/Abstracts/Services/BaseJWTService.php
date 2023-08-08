@@ -7,7 +7,17 @@ use Iqbalatma\LaravelJwtAuth\Exceptions\UnauthenticatedJWTException;
 
 abstract class BaseJWTService
 {
+
+    /**
+     * Access token that used by user to access protected resource
+     * @var string
+     */
     public string $accessToken;
+
+    /**
+     * Refresh token that used by user to regenerate new token pairs (access and refresh) token
+     * @var string
+     */
     public string $refreshToken;
 
     /**

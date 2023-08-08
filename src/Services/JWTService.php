@@ -6,6 +6,7 @@ namespace Iqbalatma\LaravelJwtAuth\Services;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Iqbalatma\LaravelJwtAuth\Contracts\Abstracts\Services\BaseJWTService;
+use Iqbalatma\LaravelJwtAuth\Exceptions\InvalidCredentialException;
 use Iqbalatma\LaravelJwtAuth\Exceptions\NullCredentialException;
 use Iqbalatma\LaravelJwtAuth\Exceptions\UnauthenticatedJWTException;
 
@@ -17,31 +18,29 @@ class JWTService extends BaseJWTService
      * @return string|null
      * @throws \Throwable
      */
-    public function invokeAccessToken(?array $credentials = null, ?Authenticatable $user = null): string|null
+    public function invokeAccessToken(?array $credentials = null, ?Authenticatable $user = null): string|bool|null
     {
         /**
          * Use to set token claims
          */
-        $accessTTL = config("jwt.ttl", 60);
         $authClaim = Auth::claims(["token_type" => "access"])
-            ->setTTL($accessTTL);
+            ->setTTL(config("jwt.ttl", 60));
 
         /**
-         * if request come from authenticated user, set $user into that authenticated user
+         * if user not null, get new token via authenticated user (mostly use by action refreshing token)
+         * if user null,  get token via credential attempt, if credentials is empty or null throw an exception
          */
-        if (Auth::user()) $user = Auth::user();
-
-
-        /**
-         * if user not null, get new token via authenticated user
-         * if user null,  get token via credential attempt
-         */
-        if ($user) {
+        if ($user = Auth::user()) {
             $token = $authClaim->login($user);
         } else {
             throw_if(!$credentials, new NullCredentialException());
             $token = $authClaim->attempt($credentials);
         }
+
+        /**
+         * This is when credentials is invalid (which mean token will be false)
+         */
+        throw_if(!$token, new InvalidCredentialException());
 
         $this->setAccessToken($token);
 
@@ -50,17 +49,19 @@ class JWTService extends BaseJWTService
 
 
     /**
+     * invoke refresh token must be accessed from authenticated user
+     *
+     *
      * @return string
      * @throws \Throwable
      */
     public function invokeRefreshToken(): string
     {
-        throw_if(!Auth::user(), new UnauthenticatedJWTException());
+        throw_if(!$user = Auth::user(), new UnauthenticatedJWTException());
 
         $token = Auth::claims(["token_type" => "refresh"])
             ->setTTL(config("jwt.refresh_ttl"))
-            ->login(Auth::user());
-
+            ->login($user);
 
         $this->setRefreshToken($token);
 
@@ -75,7 +76,7 @@ class JWTService extends BaseJWTService
      */
     public function refreshToken(): void
     {
-        throw_if(!Auth::user(), new UnauthenticatedJWTException());
+        throw_if(!$user = Auth::user(), new UnauthenticatedJWTException());
 
         /**
          * make sure request token come from refresh token type
@@ -90,7 +91,7 @@ class JWTService extends BaseJWTService
         /**
          * invoke new access and refresh token
          */
-        $this->invokeAccessToken(user: Auth::user());
+        $this->invokeAccessToken(user: $user);
         $this->invokeRefreshToken();
     }
 }
