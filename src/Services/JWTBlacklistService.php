@@ -28,14 +28,14 @@ class JWTBlacklistService
          */
         $accessTTL = (config("jwt.ttl") * 60) + (60*60*5);
         $refreshTTL = (config("jwt.refresh_ttl") * 60) + (60*60*5);
-        if (!$isInvalidateBothTokenType) {
+        if ($isInvalidateBothTokenType) {
+            Cache::put("$cachePrefixKey.access.$userId", $iat, $accessTTL);
+            Cache::put("$cachePrefixKey.refresh.$userId", $iat, $refreshTTL);
+        } else {
             $tokenType = $payload->get("token_type");
             $ttl = $tokenType === "refresh" ? $refreshTTL : $accessTTL;
             //example : jwt.refresh.uuid
             Cache::put("$cachePrefixKey.$tokenType.$userId", $iat, $ttl);
-        } else {
-            Cache::put("$cachePrefixKey.access.$userId", $iat, $accessTTL);
-            Cache::put("$cachePrefixKey.refresh.$userId", $iat, $refreshTTL);
         }
     }
 
@@ -45,7 +45,7 @@ class JWTBlacklistService
      * @return bool
      * @throws \Throwable
      */
-    public function isTokenBlacklisted(): bool
+    public function isTokenBlacklisted($incidentTime): bool
     {
         /**
          * use to check is user is authenticated
@@ -60,6 +60,16 @@ class JWTBlacklistService
         $tokenType = $payload->get("token_type");
         $cachePrefix = self::CACHE_PREFIX_KEY;
         $userId = Auth::id();
+
+
+        /**
+         * check iat by incident date time
+         */
+        if($incidentTime >= $iat){
+            $this->invalidateCurrentToken(true);
+            return true;
+        }
+
 
         /**
          * get data from cache

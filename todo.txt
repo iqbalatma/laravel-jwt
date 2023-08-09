@@ -1,4 +1,5 @@
-- create redis infrastructure broken check condition
+- DONE
+    create redis infrastructure broken check condition
     we need to set last incident (broken cache server) date time or by default is the first time application accepting request
     first of all, we need to check is last incident date time exists
     if not, it is mean incident happen because redis is in memory db, so when server is restarted, the memory will be erased

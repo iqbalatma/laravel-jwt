@@ -3,6 +3,7 @@
 namespace Iqbalatma\LaravelJwtAuth\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Cache;
 use Iqbalatma\LaravelJwtAuth\Services\JWTBlacklistService;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
@@ -21,7 +22,12 @@ class AuthenticateJWT extends Middleware
     {
         $this->authenticate($request, $guards);
 
-        if ((new JWTBlacklistService())->isTokenBlacklisted())
+        // when incident date time is null probably incident just happening, set again
+        if(!$incidentTime = Cache::get("jwt.incident_date_time")){
+            $incidentTime = Cache::forever("jwt.incident_date_time", time());
+        }
+
+        if ((new JWTBlacklistService())->isTokenBlacklisted($incidentTime))
             $this->unauthenticated($request, $guards);
 
         return $next($request);
