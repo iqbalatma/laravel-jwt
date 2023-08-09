@@ -7,3 +7,5 @@
     then every request must be check, is iat is below incident time
     if yes, we dont know this token is on blacklist or not, so invalidate that token set to blacklist, and ask user to input their credentials again
     if not (which mean greater than last incident time) it is mean the token is issued after incident time and must be recorded on redis or cache system
+- Support for multiple device login and multiple device sign in
+    we need to add new prefix on blacklisted record, so when request come for specific device we can choose which token will be blacklisted
