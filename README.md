@@ -18,5 +18,18 @@ The other case is when you set access token with short ttl, you cannot re-invoke
 On this package when your access token is invalid you still can re-invoke new token with refresh token
 
 ## How to install this package ?
-Soon
 
+Install via composer
+```
+composer require iqbalatma/laravel-jwt-auth
+```
+
+Copy service profider into `config/app.php`
+```
+Iqbalatma\LaravelJwtAuth\Providers\LaravelServiceProvider::class,
+```
+
+Publish vendor using command below
+```
+php artisan vendor:publish --provider="Iqbalatma\LaravelJwtAuth\Providers\LaravelServiceProvider"
+```
