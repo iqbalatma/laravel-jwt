@@ -7,7 +7,9 @@ use Iqbalatma\LaravelJwtAuth\Exceptions\UnauthenticatedJWTException;
 
 abstract class BaseJWTService
 {
+    public const CACHE_PREFIX_INCIDENT_TIME = "jwt.incident_date_time";
 
+    protected string $incidentTime;
     /**
      * Access token that used by user to access protected resource
      * @var string
@@ -24,7 +26,7 @@ abstract class BaseJWTService
      * @param string $accessToken
      * @return void
      */
-    public function setAccessToken(string $accessToken):void
+    public function setAccessToken(string $accessToken): void
     {
         $this->accessToken = $accessToken;
     }
@@ -32,7 +34,7 @@ abstract class BaseJWTService
     /**
      * @return string
      */
-    public function getAccessToken():string
+    public function getAccessToken(): string
     {
         return $this->accessToken;
     }
@@ -41,7 +43,7 @@ abstract class BaseJWTService
      * @param string $refreshToken
      * @return void
      */
-    public function setRefreshToken(string $refreshToken):void
+    public function setRefreshToken(string $refreshToken): void
     {
         $this->refreshToken = $refreshToken;
     }
@@ -49,7 +51,7 @@ abstract class BaseJWTService
     /**
      * @return string
      */
-    public function getRefreshToken():string
+    public function getRefreshToken(): string
     {
         return $this->refreshToken;
     }
@@ -64,5 +66,15 @@ abstract class BaseJWTService
     {
         $tokenType = Auth::payload()->get("token_type");
         throw_if($tokenType !== "refresh", new UnauthenticatedJWTException("Cannot using access token to doing refresh token"));
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    public static function requestShouldFromAccessToken(): void
+    {
+        $tokenType = Auth::payload()->get("token_type");
+        throw_if($tokenType !== "access", new UnauthenticatedJWTException("Cannot using refresh token to access protected resource"));
     }
 }

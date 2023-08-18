@@ -9,6 +9,7 @@ use Iqbalatma\LaravelJwtAuth\Exceptions\UnauthenticatedJWTException;
 
 class JWTBlacklistService
 {
+
     public const CACHE_PREFIX_KEY = "jwt";
 
     /**
@@ -26,8 +27,8 @@ class JWTBlacklistService
          * Config TTL is set with minutes format, and need to multiplies with 60 to make it in second format
          * Need to add additional time (5 minutes), just to make sure that expire token is below expire cache saved
          */
-        $accessTTL = (config("jwt.ttl") * 60) + (60*60*5);
-        $refreshTTL = (config("jwt.refresh_ttl") * 60) + (60*60*5);
+        $accessTTL = (config("jwt.ttl") * 60) + (60 * 60 * 5);
+        $refreshTTL = (config("jwt.refresh_ttl") * 60) + (60 * 60 * 5);
         if ($isInvalidateBothTokenType) {
             Cache::put("$cachePrefixKey.access.$userId", $iat, $accessTTL);
             Cache::put("$cachePrefixKey.refresh.$userId", $iat, $refreshTTL);
@@ -65,7 +66,7 @@ class JWTBlacklistService
         /**
          * check iat by incident date time
          */
-        if($incidentTime >= $iat){
+        if ($incidentTime >= $iat) {
             $this->invalidateCurrentToken(true);
             return true;
         }
