@@ -23,20 +23,21 @@ class RefreshTokenMiddleware extends Middleware
      */
     public function handle($request, Closure $next, ...$guards)
     {
+        /**
+         * need to check
+         */
         $refreshToken = $request->cookie("refresh_token");
         $request->headers->set('authorization', "Bearer $refreshToken");
 
         $this->authenticate($request, $guards);
 
-        (new JWTService())->checkIncidentTime();
+        // when incident date time is null probably incident just happening, set again
+        if (!$incidentTime = Cache::get("jwt.incident_date_time")) {
+            $incidentTime = Cache::forever("jwt.incident_date_time", time());
+        }
 
-//        // when incident date time is null probably incident just happening, set again
-//        if (!$incidentTime = Cache::get("jwt.incident_date_time")) {
-//            $incidentTime = Cache::forever("jwt.incident_date_time", time());
-//        }
-
-//        if ((new JWTBlacklistService())->isTokenBlacklisted($incidentTime))
-//            $this->unauthenticated($request, $guards);
+        if ((new JWTBlacklistService())->isTokenBlacklisted($incidentTime))
+            $this->unauthenticated($request, $guards);
 
         JWTService::requestShouldFromRefreshToken();
 

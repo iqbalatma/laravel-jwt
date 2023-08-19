@@ -6,6 +6,7 @@ namespace Iqbalatma\LaravelJwtAuth\Services;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cookie;
 use Iqbalatma\LaravelJwtAuth\Contracts\Abstracts\Services\BaseJWTService;
 use Iqbalatma\LaravelJwtAuth\Exceptions\InvalidCredentialException;
 use Iqbalatma\LaravelJwtAuth\Exceptions\NullCredentialException;
@@ -66,6 +67,9 @@ class JWTService extends BaseJWTService
             ->login($user);
 
         $this->setRefreshToken($token);
+        /**
+         * need to check cookie
+         */
 
         return $token;
     }
@@ -95,18 +99,5 @@ class JWTService extends BaseJWTService
          */
         $this->invokeAccessToken(user: $user);
         $this->invokeRefreshToken();
-    }
-
-    /**
-     * @return $this
-     */
-    public function checkIncidentTime(): self
-    {
-        // when incident date time is null probably incident just happening, set again
-        if (!$this->incidentTime = Cache::get(self::CACHE_PREFIX_INCIDENT_TIME)) {
-            $this->incidentTime = Cache::forever(self::CACHE_PREFIX_INCIDENT_TIME, time());
-        }
-
-        return $this;
     }
 }

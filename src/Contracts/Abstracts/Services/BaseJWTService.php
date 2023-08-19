@@ -3,13 +3,11 @@
 namespace Iqbalatma\LaravelJwtAuth\Contracts\Abstracts\Services;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Iqbalatma\LaravelJwtAuth\Exceptions\UnauthenticatedJWTException;
 
 abstract class BaseJWTService
 {
-    public const CACHE_PREFIX_INCIDENT_TIME = "jwt.incident_date_time";
-
-    protected string $incidentTime;
     /**
      * Access token that used by user to access protected resource
      * @var string
@@ -45,6 +43,7 @@ abstract class BaseJWTService
      */
     public function setRefreshToken(string $refreshToken): void
     {
+        Cookie::queue("refresh_token", $refreshToken);
         $this->refreshToken = $refreshToken;
     }
 
@@ -65,7 +64,9 @@ abstract class BaseJWTService
     public static function requestShouldFromRefreshToken(): void
     {
         $tokenType = Auth::payload()->get("token_type");
-        throw_if($tokenType !== "refresh", new UnauthenticatedJWTException("Cannot using access token to doing refresh token"));
+        throw_if($tokenType !== "refresh",
+            new UnauthenticatedJWTException("Cannot using access token to doing refresh token")
+        );
     }
 
     /**
@@ -75,6 +76,9 @@ abstract class BaseJWTService
     public static function requestShouldFromAccessToken(): void
     {
         $tokenType = Auth::payload()->get("token_type");
-        throw_if($tokenType !== "access", new UnauthenticatedJWTException("Cannot using refresh token to access protected resource"));
+        throw_if(
+            $tokenType !== "access",
+            new UnauthenticatedJWTException("Cannot using refresh token to access protected resource")
+        );
     }
 }
