@@ -43,7 +43,14 @@ abstract class BaseJWTService
      */
     public function setRefreshToken(string $refreshToken): void
     {
-        Cookie::queue("refresh_token", $refreshToken);
+        Cookie::queue(
+            "refresh_token",
+            $refreshToken,
+            config("jwt.refresh_ttl"),
+            null,
+            null,
+            true
+        );
         $this->refreshToken = $refreshToken;
     }
 

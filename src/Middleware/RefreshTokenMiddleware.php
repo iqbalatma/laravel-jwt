@@ -23,9 +23,6 @@ class RefreshTokenMiddleware extends Middleware
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        /**
-         * need to check
-         */
         $refreshToken = $request->cookie("refresh_token");
         $request->headers->set('authorization', "Bearer $refreshToken");
 
@@ -42,14 +39,5 @@ class RefreshTokenMiddleware extends Middleware
         JWTService::requestShouldFromRefreshToken();
 
         return $next($request);
-    }
-
-
-    /**
-     * Get the path the user should be redirected to when they are not authenticated.
-     */
-    protected function redirectTo(Request $request): ?string
-    {
-        return $request->expectsJson() ? null : route('login');
     }
 }

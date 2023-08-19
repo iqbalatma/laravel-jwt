@@ -18,7 +18,7 @@ class JWTService extends BaseJWTService
     /**
      * @param array|null $credentials
      * @param Authenticatable|null $user
-     * @return string|null
+     * @return string|bool|null
      * @throws \Throwable
      */
     public function invokeAccessToken(?array $credentials = null, ?Authenticatable $user = null): string|bool|null
